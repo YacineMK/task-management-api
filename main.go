@@ -1,40 +1,52 @@
-package main 
+package main
 
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"time"
 )
 
 type Todos struct {
-	id int
-	title string 
-	todo string 
-	do bool 
+	ID    int    
+	Title string `json:"title"`
+	Todo  string `json:"todo"`
+	Do    bool   `json:"do"`
 }
 
-func main() {
-	var list []Todos;
-	list = append(list , Todos{id :1 ,title : "test" , todo :"test",do : false})
+func randomID() int {
+	crtime := time.Now()
+	id := crtime.Minute() + crtime.Second() + crtime.Hour() + crtime.Day() + crtime.Year() + int(crtime.Month())
+	return id
+}
 
-	app:= fiber.New();
-	fmt.Println("The server is running on port 3200");
+func addTodo(c *fiber.Ctx) error {
+	var td Todos
+	if err := c.BodyParser(&td); err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid request body")
+	}
 
-	app.Post("/addtodo",func(c *fiber.Ctx) error {
-		var todo Todos ;
-		var i int ;	
-		func check() string{
-			for i range list {
-				if (todo.title == list[i].title && list[i].title == false) {
-					return "you have allredy this todo ";
-				}
-			}
+	for _, t := range list {
+		if td.Title == t.Title && !t.Do {
+			return c.Status(fiber.StatusConflict).SendString("You already have this todo")
 		}
-		list = append();
+	}
+
+	newTodo := Todos{ID: randomID(), Title: td.Title, Todo: td.Todo, Do: td.Do}
+	list = append(list, newTodo)
+
+	return c.Status(fiber.StatusCreated).JSON(newTodo)
+}
+
+var list []Todos
+
+func main() {
+	app := fiber.New()
+	fmt.Println("The server is running on port 8080")
+
+	app.Post("/todos", addTodo)
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Home page")
 	})
 
-	app.Get("/" , func(c *fiber.Ctx) error {
-	  return c.SendString("Home page");
-	});
-	app.Listen(":3200");
-
+	app.Listen(":8080")
 }
