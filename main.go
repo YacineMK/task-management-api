@@ -36,13 +36,25 @@ func addTodo(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(newTodo)
 }
+func deleteTodo(c *fiber.Ctx) error {
+	id := c.Params("id")
 
+	for i, t := range list {
+		if fmt.Sprintf("%d", t.ID) == id {
+			list = append(list[:i], list[i+1:]...)
+			return c.SendString("Todo deleted successfully")
+		}
+	}
+
+	return c.Status(fiber.StatusNotFound).SendString("Todo not found")
+}
 var list []Todos
 
 func main() {
 	app := fiber.New()
 	fmt.Println("The server is running on port 8080")
 
+	app.Delete("/todos/:id", deleteTodo)
 	app.Post("/todos", addTodo)
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Home page")
