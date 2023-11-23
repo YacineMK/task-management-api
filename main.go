@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-  app := fiber.New();
-  fmt.Println("lanci hamid");
-  app.Listen(":3030");
+   app:= fiber.New();
+    fmt.Println("the server run in port 3200")
+    app.Listen(":3200")
 }
