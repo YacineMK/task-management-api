@@ -36,6 +36,7 @@ func addTodo(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(newTodo)
 }
+
 func deleteTodo(c *fiber.Ctx) error {
 	id := c.Params("id")
 
@@ -48,6 +49,7 @@ func deleteTodo(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusNotFound).SendString("Todo not found")
 }
+
 var list []Todos
 
 func main() {
